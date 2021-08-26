@@ -20,13 +20,13 @@ public class IndexServlet extends HttpServlet {
         int i = Integer.parseInt(req.getParameter("id"));
         Item item = HbmStore.instOf().findById(i);
         if (item != null) {
-            HbmStore.instOf().save(Item.of(
+            HbmStore.instOf().update(Item.of(
                     i,
                     item.getDescription(),
                     Boolean.parseBoolean(req.getParameter("done"))
             ));
         } else {
-            HbmStore.instOf().save(Item.of(
+            HbmStore.instOf().add(Item.of(
                     Integer.parseInt(req.getParameter("id")),
                     req.getParameter("des"),
                     Boolean.parseBoolean(req.getParameter("done"))
