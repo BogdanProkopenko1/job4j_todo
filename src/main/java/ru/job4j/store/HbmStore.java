@@ -16,34 +16,39 @@ public class HbmStore {
     private final SessionFactory sf = new MetadataSources(registry)
             .buildMetadata().buildSessionFactory();
 
-    private static final HbmStore STORE = new HbmStore();
 
-    public static HbmStore instOf() {
-        return STORE;
+    private static class Lazy {
+        private static final HbmStore INSTANCE = new HbmStore();
     }
 
-    public void save(Item item) {
+    public static HbmStore instOf() {
+        return Lazy.INSTANCE;
+    }
+
+    public Item save(Item item) {
         if (item.getId() == 0) {
-            add(item);
+            return add(item);
         } else {
-            update(item);
+            return update(item);
         }
     }
 
-    private void add(Item item) {
+    private Item add(Item item) {
         Session session = sf.openSession();
         session.beginTransaction();
         session.save(item);
         session.getTransaction().commit();
         session.close();
+        return item;
     }
 
-    private void update(Item item) {
+    private Item update(Item item) {
         Session session = sf.openSession();
         session.beginTransaction();
         session.update(item);
         session.getTransaction().commit();
         session.close();
+        return item;
     }
 
     public List<Item> getAll() {
