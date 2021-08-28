@@ -8,8 +8,11 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
 import ru.job4j.model.Item;
+import ru.job4j.model.User;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class HbmStore {
@@ -19,7 +22,6 @@ public class HbmStore {
     private final SessionFactory sf = new MetadataSources(registry)
             .buildMetadata().buildSessionFactory();
 
-
     private static class Lazy {
         private static final HbmStore INSTANCE = new HbmStore();
     }
@@ -28,12 +30,12 @@ public class HbmStore {
         return Lazy.INSTANCE;
     }
 
-    public void add(Item item) {
+    public void addItem(Item item) {
         tx(session -> session.save(item));
     }
 
-    public void update(Item item) {
-        this.tx( session -> {
+    public void updateItem(Item item) {
+        this.tx(session -> {
             Query query = session.createQuery("UPDATE Item SET description = :des, created = :created, done = :done")
                     .setParameter("des", item.getDescription())
                     .setParameter("created", item.getCreated())
@@ -43,14 +45,24 @@ public class HbmStore {
         });
     }
 
-    public Item findById(Integer id) {
+    public Item findItemById(Integer id) {
         return tx(session -> session.get(Item.class, id));
     }
 
-    public Collection getAll() {
+    public List getAllItems() {
         return tx(
-                session -> session.createQuery("from Item").list()
+                session -> session.createQuery("from ru.job4j.model.Item").list()
         );
+    }
+
+    public Optional<User> getUserOnEmail(String email) {
+        return tx(session ->
+                session.createQuery("from User where email =: email")
+                        .setParameter("email", email).list().stream().findFirst());
+    }
+
+    public void save(User user) {
+        tx(session -> session.save(user));
     }
 
     private <T> T tx(final Function<Session, T> command) {

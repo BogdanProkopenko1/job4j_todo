@@ -18,13 +18,21 @@ public class Item {
     private Timestamp created = Timestamp.valueOf(LocalDateTime.now());
     @Column(name = "done")
     private boolean done = false;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public static Item of(Integer id, String description, boolean done) {
+    public static Item of(Integer id, String description, boolean done, User user) {
         Item item = new Item();
         item.id = id;
         item.done = done;
         item.description = description;
+        item.user = user;
         return item;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public int getId() {
