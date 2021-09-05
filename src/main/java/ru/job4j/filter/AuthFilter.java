@@ -20,8 +20,6 @@ public class AuthFilter implements Filter {
     public void doFilter(ServletRequest sreq, ServletResponse sresp, FilterChain chain)
             throws IOException, ServletException {
         sresp.setContentType("application/json; charset=utf-8");
-        chain.doFilter(sreq, sresp);
-        /*
         HttpServletRequest req = (HttpServletRequest) sreq;
         HttpServletResponse resp = (HttpServletResponse) sresp;
         String uri = req.getRequestURI();
@@ -30,7 +28,6 @@ public class AuthFilter implements Filter {
                 || uri.endsWith("reg")
                 || uri.endsWith("login.html")
                 || uri.endsWith("reg.html")
-                || uri.endsWith("index.html")
         ) {
             chain.doFilter(sreq, sresp);
             return;
@@ -40,8 +37,6 @@ public class AuthFilter implements Filter {
             return;
         }
         chain.doFilter(sreq, sresp);
-
-         */
     }
 
     @Override

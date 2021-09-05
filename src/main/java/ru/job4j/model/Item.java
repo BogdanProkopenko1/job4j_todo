@@ -1,8 +1,12 @@
 package ru.job4j.model;
 
+import org.json.JSONArray;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -18,9 +22,11 @@ public class Item {
     private Timestamp created = Timestamp.valueOf(LocalDateTime.now());
     @Column(name = "done")
     private boolean done = false;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    private List<Category> categories = new LinkedList<>();
 
     public static Item of(Integer id, String description, boolean done, User user) {
         Item item = new Item();
@@ -29,6 +35,14 @@ public class Item {
         item.description = description;
         item.user = user;
         return item;
+    }
+
+    public void addCategory(Category category) {
+        categories.add(category);
+    }
+
+    public List<Category> getCategories() {
+        return categories;
     }
 
     public User getUser() {

@@ -14,94 +14,132 @@
             integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
             integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            refreshTodoList()
+
+</head>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" ></script>
+<script>
+    $(document).ready(function () {
+        refreshList()
+        loadCategories()
+    });
+</script>
+<script>
+    function update() {
+        const show = document.querySelector('#show').checked;
+        let table = document.querySelector('#items tbody');
+        for (let row of table.rows) {
+            row.hidden = !show && row.lastElementChild.checked;
+        }
+    }
+</script>
+<script>
+    function validate() {
+        if ($('#descriptionTask').val() === '') {
+            alert('Enter correct description');
+            return false;
+        }
+        var m = false;
+        $.each($('select'),function()
+        {
+            if( $(this).val() !== ''){  m=true; }
         });
-
-        function updateTask() {
-            const show = document.querySelector('#show').checked;
-            let table = document.querySelector('#items tbody');
-
-            for (let row of table.rows) {
-                row.hidden = !show && row.lastChild.lastChild.checked;
-            }
+        if (!m) {
+            alert('Choose categories');
         }
-
-        function refreshTodoList() {
-            $.ajax({
-                type: 'GET',
-                url: 'http://localhost:8080/job4j_todo_war_exploded/todo.do',
-                dataType: 'json'
-            }).done(function (data) {
-                $('#items tbody tr').remove();
-                for (var item of data) {
-                    addRow(item);
-                }
-            }).fail(function (error) {
-                console.log('Error in refreshTodoList: ' + error);
-            });
-        }
-
-        function addRow(task) {
-            $('#items tbody').append(
-                '<tr ' + ((!document.querySelector('#show').checked && task.done === true) ? "hidden" : "") + '>' +
-                '<td>' + task.description + '</td>' +
-                '<td>' + task.created + '</td>' +
-                '<td>' + task.user.name + '</td>' +
-                '<td>' +
-                '   <input onclick="changeTaskState(this)" data-id="' + task.id + '" type="checkbox" ' + (task.done === true ? "checked" : "") + '>' +
-                '</td></tr>'
-            );
-        }
-
-        function validate() {
-            if ($('#descriptionTask').val() === '') {
-                alert('Enter correct description');
-                return false;
-            } else {
-                return true;
-            }
-        }
-
-        function add() {
-            if (validate()) {
-                $.ajax({
-                    type: 'POST',
-                    url: 'http://localhost:8080/job4j_todo_war_exploded/todo.do',
-                    data: {
-                        id: 0,
-                        des: $('#description').val(),
-                        done: false
-                    }
-                }).done(function (data) {
-                    addRow(data)
-                }).fail(function (err) {
-                    console.log(err)
-                });
-            }
-        }
-
-        function changeTaskState(el) {
+        return m;
+    }
+</script>
+<script>
+    function add() {
+        if (validate()) {
             $.ajax({
                 type: 'POST',
                 url: 'http://localhost:8080/job4j_todo_war_exploded/todo.do',
                 data: {
-                    id : el.id,
-                    done: $('#el.id').val() === 'checked',
+                    desc: $('#desc').val()
+                  //  categ: $('#categ').val()
                 }
-            }).done(data => {
-                el.parentElement.parentElement.hidden = !document.querySelector('#show').checked && data.done;
-            }).fail((e) => {
-                    updateTask();
-                    console.log(e);
-                }
-            )
+            }).done(function (data) {
+                    $('#items tbody').append(
+                        '<tr ' + ((!document.querySelector('#show').checked && data.done === true) ? "hidden" : "") + '>' +
+                        '<td>' + data.description + '</td>' +
+                        '<td>' + data.created + '</td>' +
+                        '<td>' + data.user.name + '</td>' +
+                        '<td>' +
+                        '   <input onclick="changeState(this)" id="task' + data.id + '" type="checkbox" ' + (data.done === true ? "checked" : "") + '>' +
+                        '</td></tr>'
+                    );
+            }).fail(function (err) {
+                console.log(err)
+            });
         }
-    </script>
-</head>
+    }
+</script>
+<script>
+    function refreshList() {
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8080/job4j_todo_war_exploded/todo.do',
+            dataType: 'json'
+        }).done(function (data) {
+            for (var task of data) {
+                $('#items tbody').append(
+                    '<tr ' + ((!document.querySelector('#show').checked && task.done === true) ? "hidden" : "") + '>' +
+                    '<td>' + task.description + '</td>' +
+                    '<td>' + task.created + '</td>' +
+                    '<td>' + task.user.name + '</td>' +
+                    '<td>' +
+                    '   <input onclick="changeState(this.id)" id="'+task.id+'" type="checkbox" ' + (data.done === true ? "checked" : "") + '>' +
+                    '</td></tr>'
+                );
+            }
+        }).fail(function (error) {
+            console.log(error);
+        });
+    }
+</script>
+<script>
+    function changeState(id) {
+        $.ajax({
+            type: 'PUT',
+            url: 'http://localhost:8080/job4j_todo_war_exploded/todo.do',
+            data: {
+                ids: id
+            }
+        }).done(data => {
+            refreshList()
+            el.parentElement.hidden = !document.querySelector('#show').checked && data.done;
+        }).fail((e) => {
+                update();
+                console.log(e);
+            }
+        )
+    }
+</script>
+<script>
+    function loadCategories() {
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8080/job4j_todo_war_exploded/category',
+            dataType: 'json'
+        }).done(function (data) {
+            console.log(data)
+            let html = '<select class="custom-select" id="categ" size="3" multiple name="categ" required>'
+            for(let ctg of data) {
+                console.log(ctg)
+                html += '<option value="' + ctg.id + '">'
+                html += ctg.name
+                html += '</option>'
+            }
+            html += '</select>'
+            $('#categ').replaceWith(html)
+            console.log('#categ')
+        }).fail(function (err) {
+            console.log(err)
+        })
+    }
+</script>
 <body>
 <div class="container">
     <form action="http://localhost:8080/job4j_todo_war_exploded/out" method="get">
@@ -117,10 +155,15 @@
             <div class="card-body">
                 <form>
                     <div class="form-group">
-                        <label for="descriptionTask">Description</label>
-                        <textarea class="form-control" id="descriptionTask" rows="3" title="Enter description"></textarea>
+                        <label for="desc">Description</label>
+                        <textarea class="form-control" id="desc" rows="3" title="Enter description"></textarea>
+                        <label for="categ">Categories</label>
+                        <div class="form-group">
+                            <select class="custom-select" id="categ" size="3" multiple name="categ" required>
+                            </select>
+                        </div>
                     </div>
-                    <button type="button" onclick="add()" class="btn btn-primary">Save</button>
+                    <button type="submit" class="btn btn-primary" onclick="add()">Save</button>
                 </form>
             </div>
         </div>
@@ -131,8 +174,8 @@
             <div class="card-header" align="center">
                 <h5>Items</h5>
                 <br>
+                <label class="form-check-label" onclick="update()" for="show">Show completed</label>
                 <input align="right" type="checkbox" class="form-check-input" id="show">
-                <label class="form-check-label" onclick="updateTask()" for="show">Show completed</label>
             </div>
             <div class="card-body">
                 <table class="table" id="items">
@@ -145,7 +188,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                        <tr></tr>
+
                     </tbody>
                 </table>
             </div>

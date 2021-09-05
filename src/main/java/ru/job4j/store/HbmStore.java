@@ -7,10 +7,10 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
+import ru.job4j.model.Category;
 import ru.job4j.model.Item;
 import ru.job4j.model.User;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -63,6 +63,20 @@ public class HbmStore {
 
     public void save(User user) {
         tx(session -> session.save(user));
+    }
+
+    public List getAllCategories() {
+        return tx(
+                session -> session.createQuery("from Category").list()
+        );
+    }
+
+    public void save(Category category) {
+        tx(session -> session.save(category));
+    }
+
+    public Category findCategoryById(int id) {
+        return tx(session -> session.find(Category.class, id));
     }
 
     private <T> T tx(final Function<Session, T> command) {
