@@ -39,11 +39,11 @@
             alert('Enter correct description');
             return false;
         }
+        var ar = $('#categ').val();
         var m = false;
-        $.each($('select'),function()
-        {
-            if( $(this).val() !== ''){  m=true; }
-        });
+        ar.forEach((val) => {
+            if (val !== '' || val !== null) m = true
+        })
         if (!m) {
             alert('Choose categories');
         }
@@ -57,8 +57,8 @@
                 type: 'POST',
                 url: 'http://localhost:8080/job4j_todo_war_exploded/todo.do',
                 data: {
-                    desc: $('#desc').val()
-                  //  categ: $('#categ').val()
+                    desc: $('#desc').val(),
+                    categ: $('#categ').val()
                 }
             }).done(function (data) {
                     $('#items tbody').append(

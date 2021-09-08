@@ -36,7 +36,8 @@ public class HbmStore {
 
     public void updateItem(Item item) {
         this.tx(session -> {
-            Query query = session.createQuery("UPDATE Item SET description = :des, created = :created, done = :done")
+            Query query = session
+                    .createQuery("UPDATE Item SET description = :des, created = :created, done = :done")
                     .setParameter("des", item.getDescription())
                     .setParameter("created", item.getCreated())
                     .setParameter("done", item.isDone());
